@@ -7,13 +7,8 @@ NAME = SLIME
 SRC = src/main.c
 OBJ = $(SRC:.c=.o)
 # Rules
-lib-sdl:
-	cd lib/SDL
-	mkdir build
-	cd build
-	../configure
-	make
-	sudo make install
+sdl:
+	cd lib/SDL && mkdir build && cd build && ../configure && make && sudo make install
 
 setup:
 	mkdir obj

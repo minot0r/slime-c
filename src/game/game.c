@@ -97,19 +97,6 @@ void game_check_collisions(game_state_t *game_state) {
         vector2_t* force = get_force_to_apply_ball_sphere(game_state->ball, game_state->slime_2->center, game_state->slime_2->width / 2);
         apply_force_to_ball(game_state->ball, force);
     }
-
-    for(int i = 0; i < game_state->rect_collides->size; i++) {
-        rect_collide_t* rect_collide = (rect_collide_t*) linked_list_get(game_state->rect_collides, i);
-        if(rect_collide->colide_type == OUTSIDE) {
-            if(rect_collide->name == "GROUND") {
-                if(rect_collide->x <= game_state->ball->center.x && game_state->ball->center.x <= rect_collide->x + rect_collide->width) {
-                    if(rect_collide->y <= game_state->ball->center.y && game_state->ball->center.y <= rect_collide->y + rect_collide->height) {
-                        game_state->ball->on_ground = true;
-                    }
-                }
-            }
-        }
-    }
 }
 
 void game_debug(game_state_t *game_state) {
