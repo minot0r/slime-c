@@ -34,5 +34,6 @@ void game_render(game_state_t *game_state);
 void game_destroy(game_state_t *game_state);
 
 void register_rect_collide(game_state_t *game_state, rect_collide_t* rect_collide);
+rect_collide_t* get_rect_collide(game_state_t *game_state, char* name);
 
 #endif

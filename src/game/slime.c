@@ -4,16 +4,18 @@
 #include <stdlib.h>
 
 
-slime_t* create_slime(int slime_id) {
+slime_t* create_slime(int slime_id, rect_collide_t* ground_collider, rect_collide_t* game_area_collider) {
     slime_t* slime = malloc(sizeof(slime_t));
-    slime->position = (vector2_t) { 320 - (80 / 2), 480 - 40 };
-    slime->center = (vector2_t) { 0, 0 };
+    slime->position = (vector2_t) { game_area_collider->position.x + game_area_collider->width / 2 - 80 / 2, 480 / 2 - (40 / 2) };
+    slime->center = (vector2_t) { slime->position.x + 80 / 2, slime->position.y + 40 };
     slime->width = 80;
     slime->height = 40;
     slime->on_ground = false;
     slime->velocity = (vector2_t) { 0, 0 };
     slime->acceleration = (vector2_t) { 0, 0 };
     slime->slime_id = slime_id;
+    slime->ground_collider = ground_collider;
+    slime->game_area_collider = game_area_collider;
     create_player_state(&slime->player_state, slime_id == 0);
 
     return slime;
@@ -56,13 +58,27 @@ void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
     slime->center.x = slime->position.x + slime->width / 2;
     slime->center.y = slime->position.y + slime->height;
 
-    if(slime->center.y > 480) {
-        slime->center.y = 480;
-        slime->position.y = 480-slime->height;
+    // check collision with ground
+    collide_dir_e collide_dir = is_colliding_y(slime->ground_collider, slime->position, slime->width, slime->height);
+    if(collide_dir != NONE) {
+        slime->center.y = slime->ground_collider->position.y;
+        slime->position.y = slime->center.y - slime->height;
         slime->velocity.y = 0;
         slime->on_ground = true;
     } else {
         slime->on_ground = false;
+    }
+
+    // check collision with game area
+    collide_dir = is_colliding_x(slime->game_area_collider, slime->position, slime->width, slime->height);
+    if(collide_dir == LEFT) {
+        slime->center.x = slime->game_area_collider->position.x + slime->width / 2;
+        slime->position.x = slime->center.x - slime->width / 2;
+        slime->velocity.x = 0;
+    } else if(collide_dir == RIGHT) {
+        slime->center.x = slime->game_area_collider->position.x + slime->game_area_collider->width - slime->width / 2;
+        slime->position.x = slime->center.x - slime->width / 2;
+        slime->velocity.x = 0;
     }
 }
 

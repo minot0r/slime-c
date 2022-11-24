@@ -37,11 +37,6 @@ void game_init(game_state_t *game) {
         return;
     }
 
-    game->slime_1 = create_slime(0);
-    game->slime_2 = create_slime(1);
-    game->ball = create_ball();
-
-
     register_rect_collide(game, create_rect_collide(
         "GROUND",
         0,
@@ -53,6 +48,60 @@ void game_init(game_state_t *game) {
         false)
     );
 
+    register_rect_collide(game, create_rect_collide(
+        "WORLD",
+        0,
+        0,
+        640,
+        480,
+        INSIDE,
+        (color_t) { 255, 0, 0, 255 },
+        true)
+    );
+
+    register_rect_collide(game, create_rect_collide(
+        "LEFT_SIDE",
+        0,
+        0,
+        310,
+        480,
+        INSIDE,
+        (color_t) { 255, 0, 0, 255 },
+        true)
+    );
+
+    register_rect_collide(game, create_rect_collide(
+        "NET",
+        311,
+        360,
+        8,
+        60,
+        OUTSIDE,
+        (color_t) { 0, 0, 255, 255 },
+        false)
+    );
+
+    register_rect_collide(game, create_rect_collide(
+        "RIGHT_SIDE",
+        320,
+        0,
+        310,
+        480,
+        INSIDE,
+        (color_t) { 255, 0, 0, 255 },
+        true)
+    );
+
+    game->slime_1 = create_slime(0, get_rect_collide(game, "GROUND"), get_rect_collide(game, "LEFT_SIDE"));
+    game->slime_2 = create_slime(1, get_rect_collide(game, "GROUND"), get_rect_collide(game, "RIGHT_SIDE"));
+    game->ball = create_ball(
+        get_rect_collide(game, "GROUND"),
+        get_rect_collide(game, "WORLD"),
+        get_rect_collide(game, "NET")
+    );
+
+    ball_set_position(game->ball, (vector2_t) { game->slime_1->center.x, 0 });
+    
     game->is_running = true;
     game->delta_time = 0;
 }
@@ -156,4 +205,14 @@ void game_destroy(game_state_t *game_state) {
 
 void register_rect_collide(game_state_t* game_state, rect_collide_t* rect_collide) {
     linked_list_add(game_state->rect_collides, rect_collide);
+}
+
+rect_collide_t* get_rect_collide(game_state_t *game_state, char* name) {
+    for(int i = 0; i < game_state->rect_collides->size; i++) {
+        rect_collide_t* rect_collide = (rect_collide_t*) linked_list_get(game_state->rect_collides, i);
+        if(strcmp(rect_collide->name, name) == 0) {
+            return rect_collide;
+        }
+    }
+    return NULL;
 }

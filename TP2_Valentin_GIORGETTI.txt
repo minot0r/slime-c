@@ -1,0 +1,154 @@
+1.
+CREATE SCHEMA e2103468;
+CREATE SCHEMA jeu;
+
+2.
+\dn
+\dt
+
+3.
+SET SEARCH_PATH TO jeu,public;
+
+4.
+\dt
+
+5.
+a.
+CREATE TYPE type_jeu AS ENUM ('role', 'plateau', 'tower defense', 'MMORPG', 'Autre');
+CREATE TABLE jeu(id_jeu serial PRIMARY KEY, nom_jeu VARCHAR(20), type type_jeu, nb_joueur INT);
+
+b.
+CREATE TABLE partie(id_avatar INT, id_jeu INT, CONSTRAINT fk_id_jeu FOREIGN KEY(id_jeu) REFERENCES jeu(id_jeu), role VARCHAR(20), highscore INT);
+
+ALTER TABLE partie
+ADD FOREIGN KEY (id_avatar) REFERENCES avatar(id_avatar);
+
+c.
+CREATE TABLE save(id_avatar bigint, id_jeu bigint, date_s date, nb_pv integer, fichier varchar(50) NOT NULL, CONSTRAINT pk_sauvegarde PRIMARY KEY (id_avatar, id_jeu, date_s), CONSTRAINT fk_id_jeu FOREIGN KEY(id_jeu) REFERENCES jeu(id_jeu));
+
+ALTER TABLE save
+ADD FOREIGN KEY (id_avatar) REFERENCES avatar(id_avatar);
+
+6.
+
+\i Script_PlateformeJeux.txt
+
+7.
+SELECT COUNT(*) FROM visiteur;
+
+8.
+SELECT id_avatar FROM partie WHERE id_jeu IN (SELECT id_jeu FROM jeu WHERE nom_jeu = 'League of Angels');
+
+9.
+SELECT id_visiteur, COUNT(id_avatar) AS "nb avatars" FROM avatar GROUP BY id_visiteur;
+
+10.
+SELECT COUNT(id_objet) FROM stock WHERE id_visiteur IN (SELECT id_visiteur FROM visiteur WHERE login = 'Elijah');
+
+11.
+SELECT login FROM avatar, visiteur WHERE avatar.id_visiteur = visiteur.id_visiteur AND CAST(code_dsc AS TEXT) ~ '^3' GROUP BY login;
+
+12.
+SELECT id_avatar, nom_race, sexe FROM avatar CROSS JOIN race WHERE avatar.id_race = race.id_race AND xp = (SELECT MAX(xp) FROM avatar);
+
+13.
+SELECT nom_objet FROM objet, stock WHERE objet.id_objet = stock.id_objet AND id_visiteur IN (SELECT id_visiteur FROM visiteur WHERE login = 'Ian');
+
+14.
+
+CREATE VIEW vue_visiteur AS
+SELECT 
+    visiteur.id_visiteur,
+    visiteur.login,
+    avatar.nom_avatar,
+    race.nom_race,
+    jeu.nom_jeu,
+    partie.highscore
+FROM visiteur, avatar, race, partie, jeu
+WHERE visiteur.id_visiteur = avatar.id_visiteur
+AND avatar.id_race = race.id_race
+AND avatar.id_avatar = partie.id_avatar
+AND partie.id_jeu = jeu.id_jeu;
+
+15.
+CREATE VIEW v_stock AS
+SELECT
+    visiteur.login,
+    objet.nom_objet,
+    stock.nb_dispo,
+    SUM(stock.nb_achat * objet.prix) AS sum_tot
+FROM visiteur, objet, stock
+WHERE visiteur.id_visiteur = stock.id_visiteur
+AND objet.id_objet = stock.id_objet
+GROUP BY visiteur.login, objet.nom_objet, stock.nb_dispo;
+
+16.
+SELECT nom_objet, SUM(nb_achat * prix) AS sum_tot FROM objet, stock WHERE objet.id_objet = stock.id_objet GROUP BY nom_objet ORDER BY sum_tot DESC;
+
+17.
+SELECT nom_jeu, AVG(highscore) as moyenne, COUNT(DISTINCT id_visiteur) AS nb_visiteur FROM vue_visiteur GROUP BY nom_jeu HAVING COUNT(DISTINCT id_visiteur) > 4;
+
+18.
+SELECT nom_race FROM vue_visiteur WHERE nom_jeu = 'Plants vs Zombies' AND highscore = (SELECT MAX(highscore) FROM vue_visiteur WHERE nom_jeu = 'Plants vs Zombies');
+
+19.
+par visiteur:
+SELECT login, AVG(highscore) AS moyenne FROM vue_visiteur GROUP BY login;
+
+par jeu:
+SELECT nom_jeu, AVG(highscore) AS moyenne FROM vue_visiteur GROUP BY nom_jeu;
+
+20
+comme 18
+
+21.
+SELECT SUM(nb_achat * prix) AS sum_tot FROM objet, stock WHERE objet.id_objet = stock.id_objet AND id_visiteur IN (SELECT id_visiteur FROM visiteur WHERE login = 'Elijah');
+
+22.
+SELECT role FROM partie WHERE id_jeu IN (SELECT id_jeu FROM jeu WHERE nom_jeu = 'Plants vs Zombies') AND highscore = (SELECT MAX(highscore) FROM partie WHERE id_jeu IN (SELECT id_jeu FROM jeu WHERE nom_jeu = 'Plants vs Zombies'));
+
+23.
+SELECT nom_objet, SUM(nb_achat) AS sum_achat FROM objet, stock WHERE objet.id_objet = stock.id_objet GROUP BY nom_objet ORDER BY sum_achat DESC;
+
+24.
+CREATE OR REPLACE FUNCTION moyenne_achat(id_visiteur bigint)
+RETURNS integer AS $$
+DECLARE
+    moyenne integer;
+BEGIN
+    SELECT AVG(nb_achat * prix) AS sum_tot INTO moyenne FROM objet, stock 
+    WHERE objet.id_objet = stock.id_objet AND stock.id_visiteur = $1;
+    RETURN moyenne;
+END;
+$$ LANGUAGE plpgsql;
+
+25.
+
+26.
+SELECT moyenne_achat(id_visiteur) FROM visiteur WHERE login = 'Dominic';
+SELECT moyenne_achat(id_visiteur) FROM visiteur WHERE login = 'Billy';
+SELECT moyenne_achat(id_visiteur) FROM visiteur WHERE login = 'Viggo';
+
+27.
+
+28.
+CREATE TABLE ville (
+    id_ville serial PRIMARY KEY,
+    nom_ville varchar(30) NOT NULL,
+    code_postal integer
+);
+
+29.
+INSERT INTO ville (nom_ville, code_postal) VALUES ('Aix en Provence', 13100), ('Brette les Pins', 72250), ('Foix', 09000), ('Nancy', 54000), ('Dunkerke', 59640);
+
+30.
+ALTER TABLE visiteur ADD COLUMN id_ville integer;
+ALTER TABLE visiteur ADD CONSTRAINT fk_id_ville FOREIGN KEY (id_ville) REFERENCES ville(id_ville);
+UPDATE visiteur SET id_ville = (SELECT id_ville FROM ville WHERE ville.nom_ville = visiteur.ville);
+
+31.
+UPDATE visiteur SET id_ville = (SELECT id_ville FROM ville WHERE ville.nom_ville = 'Aix en Provence') WHERE login = 'Ian';
+UPDATE visiteur SET id_ville = (SELECT id_ville FROM ville WHERE ville.nom_ville = 'Brette les Pins') WHERE login = 'Sean';
+
+32.
+=> Pas de colonne se nommant nb_joueur

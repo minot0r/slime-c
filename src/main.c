@@ -3,7 +3,7 @@
 #include "../include/objects/game/game.h"
 
 #define SDL_MAIN_HANDLED
-#define FPS 60
+#define FPS 120
 
 int main() {
     
@@ -16,7 +16,7 @@ int main() {
     while(game.is_running) {
         uint32_t first_frame_ticks = SDL_GetTicks();
         game_process_events(&game);
-        game_debug(&game);
+        //game_debug(&game);
         game_update(&game);
         game_check_collisions(&game);
         game_render(&game);

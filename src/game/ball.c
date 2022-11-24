@@ -1,6 +1,6 @@
 #include "../../include/objects/game/ball.h"
 
-ball_t* create_ball() {
+ball_t* create_ball(rect_collide_t* ground_collider, rect_collide_t* world_collider, rect_collide_t* net_collider) {
     ball_t* ball = malloc(sizeof(ball_t));
     ball->position = (vector2_t) { 320 - (20 / 2), 0 };
     ball->center = (vector2_t) { 0, 0 };
@@ -9,7 +9,9 @@ ball_t* create_ball() {
     ball->on_ground = false;
     ball->velocity = (vector2_t) { 0, 0 };
     ball->acceleration = (vector2_t) { 0, 0 };
-
+    ball->ground_collider = ground_collider;
+    ball->world_collider = world_collider;
+    ball->net_collider = net_collider;
     return ball;
 }
 void destroy_ball(ball_t* ball) {
@@ -20,14 +22,44 @@ void update_ball(ball_t* ball, float delta_time){
     ball->velocity.y += 3000 * delta_time;
 
     ball->position.x += ball->velocity.x * delta_time;
-    ball->position.y += ball->velocity.y * delta_time;
-
     ball->center.x = ball->position.x + ball->width / 2;
+
+    collide_dir_e collide_dir;
+    if((collide_dir = is_colliding_x(ball->world_collider, ball->position, ball->width, ball->height)) != NONE) {
+        if(collide_dir == LEFT && ball->velocity.x < 0) {
+            ball->velocity.x = -ball->velocity.x;
+        } else if(collide_dir == RIGHT && ball->velocity.x > 0) {
+            ball->velocity.x = -ball->velocity.x;
+        }
+    } else if((collide_dir = is_colliding_x(ball->net_collider, (vector2_t) { ball->position.x + ball->width / 4, ball->position.y + ball->height / 4 },
+     ball->width / 2, ball->height / 2)) != NONE) {
+        if(collide_dir == LEFT) {
+            printf("collision with left\n");
+        } else if(collide_dir == RIGHT) {
+            printf("collision with right\n");
+        }
+        //ball->velocity.y = (collide_dir == TOP ? -ball->velocity.y : ball->velocity.y);
+        ball->position.x -= ball->velocity.x * delta_time;
+        ball->center.x = ball->position.x + ball->width / 2;
+        ball->velocity.x = (collide_dir == RIGHT || collide_dir == LEFT ? -ball->velocity.x : ball->velocity.x);
+    }
+
+    ball->position.y += ball->velocity.y * delta_time;
     ball->center.y = ball->position.y + ball->height / 2;
 
-    if(ball->center.y > 480) {
-        ball->position.y = 480 - ball->height;
-        ball->center.y = 480 - ball->height / 2;
+    // check collision with ground
+    if(is_colliding_y(ball->ground_collider, ball->position, ball->width, ball->height) != NONE) {
+        ball->velocity.y = -700;
+        ball->position.y = ball->ground_collider->position.y - ball->height;
+        ball->center.y = ball->position.y + ball->height / 2;
+    } else if((collide_dir = is_colliding_y(ball->net_collider, (vector2_t) { ball->position.x + ball->width / 4, ball->position.y + ball->height / 4 },
+     ball->width / 2, ball->height / 2)) != NONE) {
+        if(collide_dir == TOP) {
+            printf("collision with net top\n");
+            ball->position.y = ball->net_collider->position.y - ball->height - 10;
+            ball->center.y = ball->position.y + ball->height / 2;
+            ball->velocity.y = -ball->velocity.y;
+        }
     }
 }
 
@@ -73,6 +105,16 @@ void render_ball(ball_t* ball, SDL_Renderer* renderer) {
     SDL_Rect rect2 = { ball->center.x - 1, ball->center.y - 1, 2, 2 };
     SDL_RenderFillRect(renderer, &rect);
     SDL_RenderFillRect(renderer, &rect2);
+
+    SDL_Rect hitbox = { ball->position.x + ball->width / 4, ball->position.y + ball->height / 4,
+     ball->width / 2, ball->height / 2 };
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderDrawRect(renderer, &hitbox);
+
+}
+
+void ball_set_position(ball_t* ball, vector2_t position) {
+    ball->position = position;
 }
 
 void apply_force_to_ball(ball_t* ball, vector2_t* force) {
@@ -100,7 +142,9 @@ vector2_t* get_force_to_apply_ball_sphere(ball_t* ball, vector2_t center_sphere,
     sphere_to_ball.x *= radius_sphere;
     sphere_to_ball.y *= radius_sphere;
 
-    force->x = (sphere_to_ball.x - ball_to_sphere.x) * 20;
+    printf("%f\n", (sphere_to_ball.y - ball_to_sphere.y));
+
+    force->x = (sphere_to_ball.x - ball_to_sphere.x - 10) * 20;
     force->y = (sphere_to_ball.y - ball_to_sphere.y) * 20;
 
     return force;    
