@@ -3,7 +3,7 @@
 ball_t* create_ball(rect_collide_t* ground_collider, rect_collide_t* world_collider, rect_collide_t* net_collider) {
     ball_t* ball = malloc(sizeof(ball_t));
     ball->position = (vector2_t) { 320 - (20 / 2), 0 };
-    ball->center = (vector2_t) { 0, 0 };
+    ball->center = (vector2_t) { 10, 10 };
     ball->width = 20;
     ball->height = 20;
     ball->on_ground = false;
@@ -19,7 +19,14 @@ void destroy_ball(ball_t* ball) {
 }
 
 void update_ball(ball_t* ball, float delta_time){
-    ball->velocity.y += 3000 * delta_time;
+    ball->velocity.y += 2700 * delta_time;
+    
+    //max velocity x is 700
+    if(ball->velocity.x > 700){
+        ball->velocity.x = 700;
+    } else if(ball->velocity.x < -700){
+        ball->velocity.x = -700;
+    }
 
     ball->position.x += ball->velocity.x * delta_time;
     ball->center.x = ball->position.x + ball->width / 2;
@@ -131,7 +138,7 @@ vector2_t* get_force_to_apply_ball_sphere(ball_t* ball, vector2_t center_sphere,
     float magnitude = sqrt(pow(ball_to_sphere.x, 2) + pow(ball_to_sphere.y, 2));
     ball_to_sphere.x /= magnitude;
     ball_to_sphere.y /= magnitude;
-    ball_to_sphere.x *= ball->width / 2;
+    ball_to_sphere.x *= (ball->width + 10) / 2;
     ball_to_sphere.y *= ball->height / 2;
 
     vector2_t sphere_to_ball = (vector2_t) { ball->center.x - center_sphere.x, ball->center.y - center_sphere.y };
@@ -144,8 +151,8 @@ vector2_t* get_force_to_apply_ball_sphere(ball_t* ball, vector2_t center_sphere,
 
     printf("%f\n", (sphere_to_ball.y - ball_to_sphere.y));
 
-    force->x = (sphere_to_ball.x - ball_to_sphere.x - 10) * 20;
-    force->y = (sphere_to_ball.y - ball_to_sphere.y) * 20;
+    force->x = (sphere_to_ball.x - ball_to_sphere.x - 10) * 22;
+    force->y = (sphere_to_ball.y - ball_to_sphere.y) * 18;
 
     return force;    
 }

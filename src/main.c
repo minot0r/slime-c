@@ -28,6 +28,6 @@ int main() {
     }
 
     game_destroy(&game);
-
+    SDL_Quit();
     return 0;
 }

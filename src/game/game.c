@@ -1,10 +1,21 @@
 #include "../../include/objects/game/game.h"
 #include "../../include/objects/math/collider.h"
 #include "../../include/objects/game/rect_collide.h"
+#include "../../include/objects/game/texture.h"
 
 #include <stdlib.h>
+#include <time.h>
+
+const char slime_texture_assets[3][32] = {
+    "assets/slime/slime_dino.png",
+    "assets/slime/slime_jelly.png",
+    "assets/slime/slime_france.png"
+};
 
 void game_init(game_state_t *game) {
+    // init random
+    srand(time(NULL));
+
     game->is_running = false;
     game->rect_collides = linked_list_init();
     key_manager_init(&game->key_manager);
@@ -92,8 +103,18 @@ void game_init(game_state_t *game) {
         true)
     );
 
-    game->slime_1 = create_slime(0, get_rect_collide(game, "GROUND"), get_rect_collide(game, "LEFT_SIDE"));
-    game->slime_2 = create_slime(1, get_rect_collide(game, "GROUND"), get_rect_collide(game, "RIGHT_SIDE"));
+    // get random slime texture
+    int slime_texture_index = rand() % 3;
+    const char *slime_texture_1_asset = slime_texture_assets[slime_texture_index];
+    slime_texture_index = rand() % 3;
+    const char *slime_texture_2_asset = slime_texture_assets[slime_texture_index];
+
+    SDL_Texture* texture_1 = load_texture(game->renderer, slime_texture_1_asset);
+    SDL_Texture* texture_2 = load_texture(game->renderer, slime_texture_2_asset);
+
+
+    game->slime_1 = create_slime(0, texture_1, get_rect_collide(game, "GROUND"), get_rect_collide(game, "LEFT_SIDE"));
+    game->slime_2 = create_slime(1, texture_2, get_rect_collide(game, "GROUND"), get_rect_collide(game, "RIGHT_SIDE"));
     game->ball = create_ball(
         get_rect_collide(game, "GROUND"),
         get_rect_collide(game, "WORLD"),
@@ -125,6 +146,10 @@ void game_process_events(game_state_t *game_state) {
 }
 
 void game_update(game_state_t *game_state) {
+    if(game_state->key_manager.key_space_down) {
+        game_destroy(game_state);
+        game_init(game_state);
+    }
     update_slime(game_state->slime_1, game_state->key_manager, game_state->delta_time);
     update_ball(game_state->ball, game_state->delta_time);
     update_slime(game_state->slime_2, game_state->key_manager, game_state->delta_time);
@@ -136,6 +161,9 @@ void game_check_collisions(game_state_t *game_state) {
         game_state->ball->center, game_state->ball->width / 2)
     ) {
         vector2_t* force = get_force_to_apply_ball_sphere(game_state->ball, game_state->slime_1->center, game_state->slime_1->width / 2);
+        /* force->x += game_state->slime_2->velocity.x / 10;
+        force->y += game_state->slime_2->velocity.y / 10;  */
+        if(force->y >= 0) return;
         apply_force_to_ball(game_state->ball, force);
     }
 
@@ -144,6 +172,9 @@ void game_check_collisions(game_state_t *game_state) {
         game_state->ball->center, game_state->ball->width / 2)
     ) {
         vector2_t* force = get_force_to_apply_ball_sphere(game_state->ball, game_state->slime_2->center, game_state->slime_2->width / 2);
+        /* force->x += game_state->slime_2->velocity.x / 10;
+        force->y += game_state->slime_2->velocity.y / 10; */
+        if(force->y >= 0) return;
         apply_force_to_ball(game_state->ball, force);
     }
 }
@@ -200,7 +231,6 @@ void game_destroy(game_state_t *game_state) {
     linked_list_destroy(game_state->rect_collides);
     SDL_DestroyRenderer(game_state->renderer);
     SDL_DestroyWindow(game_state->window);
-    SDL_Quit();
 }
 
 void register_rect_collide(game_state_t* game_state, rect_collide_t* rect_collide) {

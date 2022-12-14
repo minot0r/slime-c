@@ -3,8 +3,7 @@
 
 #include <stdlib.h>
 
-
-slime_t* create_slime(int slime_id, rect_collide_t* ground_collider, rect_collide_t* game_area_collider) {
+slime_t* create_slime(int slime_id, SDL_Texture* texture, rect_collide_t* ground_collider, rect_collide_t* game_area_collider) {
     slime_t* slime = malloc(sizeof(slime_t));
     slime->position = (vector2_t) { game_area_collider->position.x + game_area_collider->width / 2 - 80 / 2, 480 / 2 - (40 / 2) };
     slime->center = (vector2_t) { slime->position.x + 80 / 2, slime->position.y + 40 };
@@ -16,6 +15,8 @@ slime_t* create_slime(int slime_id, rect_collide_t* ground_collider, rect_collid
     slime->slime_id = slime_id;
     slime->ground_collider = ground_collider;
     slime->game_area_collider = game_area_collider;
+    slime->texture = texture;
+
     create_player_state(&slime->player_state, slime_id == 0);
 
     return slime;
@@ -35,7 +36,7 @@ void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
             slime->velocity.x = 0;
         }
         if(key_manager.key_z_down && slime->on_ground) {
-            slime->velocity.y = -700;
+            slime->velocity.y = -850;
         }
     } else if(slime->slime_id == 1) {
         if(key_manager.key_right_down) {
@@ -46,7 +47,7 @@ void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
             slime->velocity.x = 0;
         }
         if(key_manager.key_up_down && slime->on_ground) {
-            slime->velocity.y = -700;
+            slime->velocity.y = -850;
         }
     }
 
@@ -83,7 +84,7 @@ void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
 }
 
 void render_slime(slime_t* slime, SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    /* SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 
     int radius = slime->width / 2;
 
@@ -113,7 +114,13 @@ void render_slime(slime_t* slime, SDL_Renderer* renderer) {
             offset_y -= 1;
             offset_x += 1;
         }
-    }
+    } */
+    SDL_RenderCopyEx(
+        renderer,
+        slime->texture,
+        NULL,
+        &(SDL_Rect) { slime->position.x, slime->position.y, slime->width, slime->height },
+        0, NULL, slime->slime_id == 0 ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
     // draw rect for position
     SDL_Rect rect = { slime->position.x - 1, slime->position.y - 1, 2, 2 };
