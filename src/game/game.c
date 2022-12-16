@@ -2,6 +2,9 @@
 #include "../../include/objects/math/collider.h"
 #include "../../include/objects/game/rect_collide.h"
 #include "../../include/objects/game/texture.h"
+#include "../../include/objects/menus/text_renderer.h"
+
+#include <SDL2/SDL_ttf.h>
 
 #include <stdlib.h>
 #include <time.h>
@@ -24,8 +27,13 @@ void game_init(game_state_t *game) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        return;
+    }
+
+    if(TTF_Init() < 0) {
+        printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
         return;
     }
 
@@ -217,6 +225,7 @@ void game_render(game_state_t *game_state) {
         rect_collide_t* rect_collide = (rect_collide_t*) linked_list_get(game_state->rect_collides, i);
         render_rect_collide(rect_collide, game_state->renderer);
     }
+    render_text(game_state->renderer, "Hello World!", 10, 10, 32, 255, 255, 255, 255);
     SDL_RenderPresent(game_state->renderer);
 }
 
@@ -231,6 +240,7 @@ void game_destroy(game_state_t *game_state) {
     linked_list_destroy(game_state->rect_collides);
     SDL_DestroyRenderer(game_state->renderer);
     SDL_DestroyWindow(game_state->window);
+    TTF_Quit();
 }
 
 void register_rect_collide(game_state_t* game_state, rect_collide_t* rect_collide) {
