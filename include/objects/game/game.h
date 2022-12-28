@@ -14,6 +14,7 @@
 
 typedef struct {
     bool is_running;
+    bool started;
     float delta_time;
     SDL_Renderer* renderer;
     SDL_Window* window;

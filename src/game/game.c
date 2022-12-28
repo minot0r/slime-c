@@ -131,6 +131,7 @@ void game_init(game_state_t *game) {
 
     ball_set_position(game->ball, (vector2_t) { game->slime_1->center.x, 0 });
     
+    game->started = false;
     game->is_running = true;
     game->delta_time = 0;
 }
