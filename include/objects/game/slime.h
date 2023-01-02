@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 #include "../math/vector2.h"
+#include "../engine/key_manager.h"
 #include "player_state.h"
-#include "key_manager.h"
 #include "rect_collide.h"
 
 typedef struct slime_struct {
