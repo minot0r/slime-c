@@ -4,12 +4,20 @@
 #include <stdlib.h>
 #include <time.h>
 
+engine_renderer_t* engine_renderer_init() {
+    engine_renderer_t* renderer = malloc(sizeof(engine_renderer_t));
+    if(renderer == NULL)
+        return NULL;
+    renderer->r_w = NULL;
+    renderer->scale = 1;
+    return renderer;
+}
+
 void engine_init(engine_t* engine) {
     srand(time(NULL));
     
     engine->is_running = false;
     key_manager_init(&engine->key_manager);
-
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -28,8 +36,9 @@ void engine_init(engine_t* engine) {
     engine->window = SDL_CreateWindow(
         "SDL2 OpenGL", 
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        640, 480,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN
+        ENGINE_RESOLUTION_X, ENGINE_RESOLUTION_Y,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN 
+        | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN_DESKTOP
     );
     
     if(engine->window == NULL) {
@@ -37,12 +46,32 @@ void engine_init(engine_t* engine) {
         return;
     }
 
-    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_SOFTWARE);
-
+    engine->renderer = engine_renderer_init();
     if(engine->renderer == NULL) {
+        printf("Engine renderer could not be created!\n");
+        return;
+    }
+
+    engine->renderer->r_w = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_SOFTWARE);
+
+    if(engine->renderer->r_w == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
         return;
     }
+
+    int pixels_width, pixels_height, pixels_per_unit_x, pixels_per_unit_y;
+    SDL_GetWindowSizeInPixels(engine->window, &pixels_width, &pixels_height);
+    pixels_per_unit_x = pixels_width / ENGINE_RESOLUTION_X;
+    pixels_per_unit_y = pixels_height / ENGINE_RESOLUTION_Y;
+
+    // change pixer per unit to min of x and y
+    if(pixels_per_unit_x > pixels_per_unit_y) {
+        engine->renderer->scale = pixels_per_unit_y;
+    } else {
+        engine->renderer->scale = pixels_per_unit_x;
+    }
+    
+    printf("Pixels per unit x-y: %d\n", engine->renderer->scale);
 
 
     engine->is_running = true;
@@ -50,7 +79,8 @@ void engine_init(engine_t* engine) {
 }
 
 void engine_destroy(engine_t* engine) {
-    SDL_DestroyRenderer(engine->renderer);
+    SDL_DestroyRenderer(engine->renderer->r_w);
+    free(engine->renderer);
     SDL_DestroyWindow(engine->window);
     TTF_Quit();
 }

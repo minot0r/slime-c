@@ -70,8 +70,8 @@ void update_ball(ball_t* ball, float delta_time){
     }
 }
 
-void render_ball(ball_t* ball, SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+void render_ball(ball_t* ball, engine_renderer_t* renderer) {
+    SDL_SetRenderDrawColor(renderer->r_w, 255, 0, 0, 255);
 
     int radius = ball->width / 2;
 
@@ -85,10 +85,34 @@ void render_ball(ball_t* ball, SDL_Renderer* renderer) {
     d = radius - 1;
 
     while (offset_y >= offset_x) {
-        SDL_RenderDrawLine(renderer, center_x - offset_y, center_y + offset_x, center_x + offset_y, center_y + offset_x);
-        SDL_RenderDrawLine(renderer, center_x - offset_x, center_y + offset_y, center_x + offset_x, center_y + offset_y);
-        SDL_RenderDrawLine(renderer, center_x - offset_x, center_y - offset_y, center_x + offset_x, center_y - offset_y);
-        SDL_RenderDrawLine(renderer, center_x - offset_y, center_y - offset_x, center_x + offset_y, center_y - offset_x);
+        SDL_RenderDrawLine(
+            renderer->r_w,
+            (center_x - offset_x) * renderer->scale,
+            (center_y + offset_y) * renderer->scale,
+            (center_x + offset_x) * renderer->scale,
+            (center_y + offset_y) * renderer->scale
+        );
+        SDL_RenderDrawLine(
+            renderer->r_w,
+            (center_x - offset_x) * renderer->scale,
+            (center_y - offset_y) * renderer->scale,
+            (center_x + offset_x) * renderer->scale,
+            (center_y - offset_y) * renderer->scale
+        );
+        SDL_RenderDrawLine(
+            renderer->r_w,
+            (center_x - offset_y) * renderer->scale,
+            (center_y - offset_x) * renderer->scale,
+            (center_x + offset_y) * renderer->scale,
+            (center_y - offset_x) * renderer->scale
+        );
+        SDL_RenderDrawLine(
+            renderer->r_w,
+            (center_x - offset_y) * renderer->scale,
+            (center_y + offset_x) * renderer->scale,
+            (center_x + offset_y) * renderer->scale,
+            (center_y + offset_x) * renderer->scale
+        );
 
         if (d >= 2*offset_x) {
             d -= 2*offset_x + 1;
@@ -105,7 +129,7 @@ void render_ball(ball_t* ball, SDL_Renderer* renderer) {
         }
     }
     
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+/*     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
     // draw rect for position
     SDL_Rect rect = { ball->position.x - 1, ball->position.y - 1, 2, 2 };
     // draw rect for center
@@ -116,7 +140,7 @@ void render_ball(ball_t* ball, SDL_Renderer* renderer) {
     SDL_Rect hitbox = { ball->position.x + ball->width / 4, ball->position.y + ball->height / 4,
      ball->width / 2, ball->height / 2 };
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_RenderDrawRect(renderer, &hitbox);
+    SDL_RenderDrawRect(renderer, &hitbox); */
 
 }
 

@@ -3,9 +3,14 @@
 
 #include <stdlib.h>
 
-slime_t* create_slime(int slime_id, SDL_Texture* texture, rect_collide_t* ground_collider, rect_collide_t* game_area_collider) {
+slime_t* create_slime(
+    int slime_id,
+    SDL_Texture* texture,
+    rect_collide_t* ground_collider,
+    rect_collide_t* game_area_collider
+) {
     slime_t* slime = malloc(sizeof(slime_t));
-    slime->position = (vector2_t) { game_area_collider->position.x + game_area_collider->width / 2 - 80 / 2, 480 / 2 - (40 / 2) };
+    slime->position = (vector2_t) { game_area_collider->position.x + (game_area_collider->width - 80) / 2, 0 };
     slime->center = (vector2_t) { slime->position.x + 80 / 2, slime->position.y + 40 };
     slime->width = 80;
     slime->height = 40;
@@ -83,7 +88,7 @@ void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
     }
 }
 
-void render_slime(slime_t* slime, SDL_Renderer* renderer) {
+void render_slime(slime_t* slime, engine_renderer_t* renderer) {
     /* SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 
     int radius = slime->width / 2;
@@ -116,16 +121,19 @@ void render_slime(slime_t* slime, SDL_Renderer* renderer) {
         }
     } */
     SDL_RenderCopyEx(
-        renderer,
+        renderer->r_w,
         slime->texture,
         NULL,
-        &(SDL_Rect) { slime->position.x, slime->position.y, slime->width, slime->height },
+        &(SDL_Rect) { slime->position.x * renderer->scale,
+        slime->position.y * renderer->scale,
+        slime->width * renderer->scale,
+        slime->height * renderer->scale },
         0, NULL, slime->slime_id == 0 ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    // draw rect for position
+    SDL_SetRenderDrawColor(renderer->r_w, 255, 255, 0, 255);
+/*     // draw rect for position
     SDL_Rect rect = { slime->position.x - 1, slime->position.y - 1, 2, 2 };
     // draw rect for center
     SDL_Rect rect2 = { slime->center.x - 1, slime->center.y - 1, 2, 2 };
-    SDL_RenderFillRect(renderer, &rect);
-    SDL_RenderFillRect(renderer, &rect2);
+    SDL_RenderFillRect(renderer->, &rect);
+    SDL_RenderFillRect(renderer, &rect2); */
 }

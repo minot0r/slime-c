@@ -11,15 +11,15 @@ const char slime_texture_assets[3][32] = {
     "assets/slime/slime_france.png"
 };
 
-void game_init(game_state_t *game, SDL_Renderer* renderer) {
+void game_init(game_state_t *game, engine_renderer_t* renderer) {
 
     game->rect_collides = linked_list_init();
 
     register_rect_collide(game, create_rect_collide(
         "GROUND",
         0,
-        400,
-        640,
+        ENGINE_RESOLUTION_Y - 80,
+        ENGINE_RESOLUTION_X,
         80,
         OUTSIDE,
         (color_t) { 0, 0, 255, 255 },
@@ -30,8 +30,8 @@ void game_init(game_state_t *game, SDL_Renderer* renderer) {
         "WORLD",
         0,
         0,
-        640,
-        480,
+        ENGINE_RESOLUTION_X,
+        ENGINE_RESOLUTION_X,
         INSIDE,
         (color_t) { 255, 0, 0, 255 },
         true)
@@ -41,8 +41,8 @@ void game_init(game_state_t *game, SDL_Renderer* renderer) {
         "LEFT_SIDE",
         0,
         0,
-        310,
-        480,
+        ENGINE_RESOLUTION_X / 2 - 5,
+        ENGINE_RESOLUTION_Y,
         INSIDE,
         (color_t) { 255, 0, 0, 255 },
         true)
@@ -50,10 +50,10 @@ void game_init(game_state_t *game, SDL_Renderer* renderer) {
 
     register_rect_collide(game, create_rect_collide(
         "NET",
-        311,
-        360,
-        8,
-        60,
+        ENGINE_RESOLUTION_X / 2 - 5,
+        ENGINE_RESOLUTION_Y - 115,
+        10,
+        115,
         OUTSIDE,
         (color_t) { 0, 0, 255, 255 },
         false)
@@ -61,10 +61,10 @@ void game_init(game_state_t *game, SDL_Renderer* renderer) {
 
     register_rect_collide(game, create_rect_collide(
         "RIGHT_SIDE",
-        320,
+        ENGINE_RESOLUTION_X / 2 + 5,
         0,
-        310,
-        480,
+        ENGINE_RESOLUTION_X / 2 - 5,
+        ENGINE_RESOLUTION_Y,
         INSIDE,
         (color_t) { 255, 0, 0, 255 },
         true)
@@ -123,9 +123,9 @@ void game_check_collisions(game_state_t *game_state) {
     }
 }
 
-void game_render(game_state_t* game_state, SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+void game_render(game_state_t* game_state, engine_renderer_t* renderer) {
+    SDL_SetRenderDrawColor(renderer->r_w, 0, 0, 0, 255);
+    SDL_RenderClear(renderer->r_w);
     render_slime(game_state->slime_1, renderer);
     render_slime(game_state->slime_2, renderer);
     render_ball(game_state->ball, renderer);
@@ -134,7 +134,7 @@ void game_render(game_state_t* game_state, SDL_Renderer* renderer) {
         render_rect_collide(rect_collide, renderer);
     }
     render_text(renderer, "Hello World!", 10, 10, 32, 255, 255, 255, 255);
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(renderer->r_w);
 }
 
 void game_destroy(game_state_t *game_state) {

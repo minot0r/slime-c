@@ -20,10 +20,10 @@ typedef struct {
     linked_list_t* rect_collides;
 } game_state_t;
 
-void game_init(game_state_t *game_state, SDL_Renderer* renderer);
+void game_init(game_state_t *game_state, engine_renderer_t* renderer);
 void game_update(game_state_t *game_state, float delta_time, key_manager_t key_manager);
 void game_check_collisions(game_state_t *game_state);
-void game_render(game_state_t *game_state, SDL_Renderer* renderer);
+void game_render(game_state_t *game_state, engine_renderer_t* renderer);
 void game_destroy(game_state_t *game_state);
 
 void register_rect_collide(game_state_t *game_state, rect_collide_t* rect_collide);
