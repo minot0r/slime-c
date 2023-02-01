@@ -88,7 +88,7 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
         get_rect_collide(game, "NET")
     );
 
-    ball_set_position(game->ball, (vector2_t) { game->slime_1->center.x, 0 });
+    ball_set_position(game->ball, (vector2_t) { game->slime_1->center.x - game->ball->width / 2, 0 });
     
     game->started = false;
 }
@@ -108,6 +108,7 @@ void game_check_collisions(game_state_t *game_state) {
         /* force->x += game_state->slime_2->velocity.x / 10;
         force->y += game_state->slime_2->velocity.y / 10;  */
         if(force->y >= 0) return;
+        printf("force: %f, %f\n", force->x, force->y);
         apply_force_to_ball(game_state->ball, force);
     }
 

@@ -10,7 +10,7 @@ slime_t* create_slime(
     rect_collide_t* game_area_collider
 ) {
     slime_t* slime = malloc(sizeof(slime_t));
-    slime->position = (vector2_t) { game_area_collider->position.x + (game_area_collider->width - 80) / 2, 0 };
+    slime->position = (vector2_t) { game_area_collider->position.x + (game_area_collider->width - 80) / 2, 40 };
     slime->center = (vector2_t) { slime->position.x + 80 / 2, slime->position.y + 40 };
     slime->width = 80;
     slime->height = 40;
@@ -34,9 +34,9 @@ void destroy_slime(slime_t* slime) {
 void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
     if(slime->slime_id == 0) {
         if(key_manager.key_d_down) {
-            slime->velocity.x = 300;
+            slime->velocity.x = 350;
         } else if(key_manager.key_q_down) {
-            slime->velocity.x = -300;
+            slime->velocity.x = -350;
         } else {
             slime->velocity.x = 0;
         }
@@ -45,9 +45,9 @@ void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
         }
     } else if(slime->slime_id == 1) {
         if(key_manager.key_right_down) {
-            slime->velocity.x = 300;
+            slime->velocity.x = 350;
         } else if(key_manager.key_left_down) {
-            slime->velocity.x = -300;
+            slime->velocity.x = -350;
         } else {
             slime->velocity.x = 0;
         }

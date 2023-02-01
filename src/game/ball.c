@@ -2,7 +2,8 @@
 
 ball_t* create_ball(rect_collide_t* ground_collider, rect_collide_t* world_collider, rect_collide_t* net_collider) {
     ball_t* ball = malloc(sizeof(ball_t));
-    ball->position = (vector2_t) { 320 - (20 / 2), 0 };
+    // net is sized 10*35
+    ball->position = (vector2_t) { 0, 0 };
     ball->center = (vector2_t) { 10, 10 };
     ball->width = 20;
     ball->height = 20;
@@ -156,13 +157,15 @@ void apply_force_to_ball(ball_t* ball, vector2_t* force) {
 
 vector2_t* get_force_to_apply_ball_sphere(ball_t* ball, vector2_t center_sphere, float radius_sphere) {
     vector2_t* force = malloc(sizeof(vector2_t));
+
+    printf("ball center: (%f, %f)\n, sphere center: (%f, %f)\n", ball->center.x, ball->center.y, center_sphere.x, center_sphere.y);
     
     vector2_t ball_to_sphere = (vector2_t) { center_sphere.x - ball->center.x, center_sphere.y - ball->center.y };
     // normalize ball_to_sphere to ball radius
     float magnitude = sqrt(pow(ball_to_sphere.x, 2) + pow(ball_to_sphere.y, 2));
     ball_to_sphere.x /= magnitude;
     ball_to_sphere.y /= magnitude;
-    ball_to_sphere.x *= (ball->width + 10) / 2;
+    ball_to_sphere.x *= ball->width / 2;
     ball_to_sphere.y *= ball->height / 2;
 
     vector2_t sphere_to_ball = (vector2_t) { ball->center.x - center_sphere.x, ball->center.y - center_sphere.y };
@@ -175,7 +178,13 @@ vector2_t* get_force_to_apply_ball_sphere(ball_t* ball, vector2_t center_sphere,
 
     printf("%f\n", (sphere_to_ball.y - ball_to_sphere.y));
 
-    force->x = (sphere_to_ball.x - ball_to_sphere.x - 10) * 22;
+    vector2_t resultant = (vector2_t) { sphere_to_ball.x - ball_to_sphere.x, sphere_to_ball.y - ball_to_sphere.y };
+
+    // further away along x axis from center, the angle is more horizontal
+    resultant.x *= 1 - (fabs(ball->center.x - center_sphere.x) / radius_sphere);
+    resultant.x *= 2.5;
+
+    force->x = (sphere_to_ball.x - ball_to_sphere.x) * 22;
     force->y = (sphere_to_ball.y - ball_to_sphere.y) * 18;
 
     return force;    

@@ -21,5 +21,6 @@ void menu_destroy(menu_t* menu);
 void menu_update(menu_t* menu, unsigned long time_stroke, key_manager_t key_manager);
 void menu_render(menu_t* menu, engine_renderer_t* renderer);
 void menu_add_item(menu_t* menu, item_t* item);
+on_click_callback_t menu_open(menu_t* menu);
 
 #endif

@@ -8,6 +8,7 @@
 #include "../other/linkedlist.h"
 
 #include "../engine/engine.h"
+#include "../menus/item.h"
 #include "slime.h"
 #include "ball.h"
 #include "rect_collide.h"
@@ -21,6 +22,7 @@ typedef struct {
 } game_state_t;
 
 void game_init(game_state_t *game_state, engine_renderer_t* renderer);
+
 void game_update(game_state_t *game_state, float delta_time, key_manager_t key_manager);
 void game_check_collisions(game_state_t *game_state);
 void game_render(game_state_t *game_state, engine_renderer_t* renderer);
