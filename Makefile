@@ -50,4 +50,3 @@ main:
 clean:
 	rm -Rf bin
 	rm -Rf obj
-	rm -Rf lib/SDL*
