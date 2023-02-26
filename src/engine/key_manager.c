@@ -1,7 +1,6 @@
 #include "../../include/objects/engine/key_manager.h"
 
-void key_manager_init(key_manager_t *key_manager)
-{
+void key_manager_init(key_manager_t *key_manager) {
     key_manager->key_z_down = false;
     key_manager->key_q_down = false;
     key_manager->key_d_down = false;
@@ -9,10 +8,9 @@ void key_manager_init(key_manager_t *key_manager)
     key_manager->key_right_down = false;
     key_manager->key_up_down = false;
 }
-void key_manager_process_events(key_manager_t *key_manager, SDL_Keycode key_code, bool is_down)
-{
-    switch (key_code)
-    {
+
+void key_manager_process_events(key_manager_t *key_manager, SDL_Keycode key_code, bool is_down) {
+    switch (key_code) {
     case SDLK_z:
         key_manager->key_z_down = is_down;
         break;
@@ -37,4 +35,5 @@ void key_manager_process_events(key_manager_t *key_manager, SDL_Keycode key_code
         break;
     }
 }
+
 void key_manager_update(key_manager_t *key_manager);

@@ -12,7 +12,6 @@ const char slime_texture_assets[3][32] = {
 };
 
 void game_init(game_state_t *game, engine_renderer_t* renderer) {
-
     game->rect_collides = linked_list_init();
 
     register_rect_collide(game, create_rect_collide(
@@ -24,6 +23,28 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
         OUTSIDE,
         (color_t) { 0, 0, 255, 255 },
         false)
+    );
+
+    register_rect_collide(game, create_rect_collide(
+        "GROUND_LEFT",
+        0,
+        ENGINE_RESOLUTION_Y - 80,
+        ENGINE_RESOLUTION_X / 2 - 5,
+        80,
+        OUTSIDE,
+        (color_t) { 0, 0, 0, 0 },
+        true)
+    );
+
+    register_rect_collide(game, create_rect_collide(
+        "GROUND_RIGHT",
+        ENGINE_RESOLUTION_X / 2 + 5,
+        ENGINE_RESOLUTION_Y - 80,
+        ENGINE_RESOLUTION_X,
+        80,
+        OUTSIDE,
+        (color_t) { 0, 0, 0, 0 },
+        true)
     );
 
     register_rect_collide(game, create_rect_collide(
@@ -80,8 +101,8 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
     SDL_Texture* texture_2 = load_texture(renderer, slime_texture_2_asset);
 
 
-    game->slime_1 = create_slime(0, texture_1, get_rect_collide(game, "GROUND"), get_rect_collide(game, "LEFT_SIDE"));
-    game->slime_2 = create_slime(1, texture_2, get_rect_collide(game, "GROUND"), get_rect_collide(game, "RIGHT_SIDE"));
+    game->slime_1 = create_slime(0, texture_1, get_rect_collide(game, "GROUND_LEFT"), get_rect_collide(game, "LEFT_SIDE"));
+    game->slime_2 = create_slime(1, texture_2, get_rect_collide(game, "GROUND_RIGHT"), get_rect_collide(game, "RIGHT_SIDE"));
     game->ball = create_ball(
         get_rect_collide(game, "GROUND"),
         get_rect_collide(game, "WORLD"),
@@ -95,32 +116,26 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
 
 void game_update(game_state_t *game_state, float delta_time, key_manager_t key_manager) {
     update_slime(game_state->slime_1, key_manager, delta_time);
-    update_ball(game_state->ball, delta_time);
+    update_ball(game_state->ball, delta_time, game_state->slime_1, game_state->slime_2);
     update_slime(game_state->slime_2, key_manager, delta_time);
-}
 
-void game_check_collisions(game_state_t *game_state) {
-    if(sphere_colliding(
-        game_state->slime_1->center, game_state->slime_1->width / 2,
-        game_state->ball->center, game_state->ball->width / 2)
-    ) {
-        vector2_t* force = get_force_to_apply_ball_sphere(game_state->ball, game_state->slime_1->center, game_state->slime_1->width / 2);
-        /* force->x += game_state->slime_2->velocity.x / 10;
-        force->y += game_state->slime_2->velocity.y / 10;  */
-        if(force->y >= 0) return;
-        printf("force: %f, %f\n", force->x, force->y);
-        apply_force_to_ball(game_state->ball, force);
+    if(is_colliding_y(get_rect_collide(game_state, "GROUND_LEFT"), game_state->ball->position, game_state->ball->width, game_state->ball->height)) {
+        game_state->points_2++;
+        set_freeze(game_state, 2);
+        reset_slime(game_state->slime_1);
+        reset_slime(game_state->slime_2);
+        ball_set_position(game_state->ball, (vector2_t) { game_state->slime_2->center.x - game_state->ball->width / 2, 0 });
+    } else if(is_colliding_y(get_rect_collide(game_state, "GROUND_RIGHT"), game_state->ball->position, game_state->ball->width, game_state->ball->height)) {
+        game_state->points_1++;
+        set_freeze(game_state, 2);
+        reset_slime(game_state->slime_1);
+        reset_slime(game_state->slime_2);
+        ball_set_position(game_state->ball, (vector2_t) { game_state->slime_1->center.x - game_state->ball->width / 2, 0 });
     }
 
-    if(sphere_colliding(
-        game_state->slime_2->center, game_state->slime_2->width / 2,
-        game_state->ball->center, game_state->ball->width / 2)
-    ) {
-        vector2_t* force = get_force_to_apply_ball_sphere(game_state->ball, game_state->slime_2->center, game_state->slime_2->width / 2);
-        /* force->x += game_state->slime_2->velocity.x / 10;
-        force->y += game_state->slime_2->velocity.y / 10; */
-        if(force->y >= 0) return;
-        apply_force_to_ball(game_state->ball, force);
+    if(game_state->points_1 == POINTS_TO_WIN || game_state->points_2 == POINTS_TO_WIN) {
+        set_freeze(game_state, 2);
+        game_reset(game_state);
     }
 }
 
@@ -134,7 +149,9 @@ void game_render(game_state_t* game_state, engine_renderer_t* renderer) {
         rect_collide_t* rect_collide = (rect_collide_t*) linked_list_get(game_state->rect_collides, i);
         render_rect_collide(rect_collide, renderer);
     }
-    render_text(renderer, "Hello World!", 10, 10, 32, 255, 255, 255, 255);
+    char* score = (char*) malloc(6 * sizeof(char));
+    sprintf(score, "%d - %d", game_state->points_1, game_state->points_2);
+    render_text(renderer, score, ENGINE_RESOLUTION_X / 2 - 10, 10, 10, 255, 255, 255, 255);
     SDL_RenderPresent(renderer->r_w);
 }
 
@@ -161,4 +178,28 @@ rect_collide_t* get_rect_collide(game_state_t *game_state, char* name) {
         }
     }
     return NULL;
+}
+
+void game_on_done(game_state_t* game_state, callback cb) {
+    game_state->on_done = cb;
+}
+
+void game_reset(game_state_t *game_state) {
+    game_state->points_1 = 0;
+    game_state->points_2 = 0;
+    reset_slime(game_state->slime_1);
+    reset_slime(game_state->slime_2);
+    ball_set_position(game_state->ball, (vector2_t) { game_state->slime_1->center.x - game_state->ball->width / 2, 0 });
+
+    if(game_state->on_done != NULL) {
+        game_state->on_done();
+    }
+}
+
+void set_freeze(game_state_t* game_state, long seconds) {
+    game_state->unfreeze_time = SDL_GetTicks() + seconds * 1000;
+}
+
+bool is_freezed(game_state_t* game_state) {
+    return SDL_GetTicks() < game_state->unfreeze_time;
 }

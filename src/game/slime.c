@@ -10,10 +10,10 @@ slime_t* create_slime(
     rect_collide_t* game_area_collider
 ) {
     slime_t* slime = malloc(sizeof(slime_t));
-    slime->position = (vector2_t) { game_area_collider->position.x + (game_area_collider->width - 80) / 2, 40 };
-    slime->center = (vector2_t) { slime->position.x + 80 / 2, slime->position.y + 40 };
-    slime->width = 80;
-    slime->height = 40;
+    slime->position = (vector2_t) { game_area_collider->position.x + (game_area_collider->width - SLIME_RADIUS * 2) / 2, game_area_collider->height - SLIME_RADIUS };
+    slime->center = (vector2_t) { slime->position.x + (SLIME_RADIUS * 2) / 2, slime->position.y + SLIME_RADIUS };
+    slime->width = SLIME_RADIUS * 2;
+    slime->height = SLIME_RADIUS;
     slime->on_ground = false;
     slime->velocity = (vector2_t) { 0, 0 };
     slime->acceleration = (vector2_t) { 0, 0 };
@@ -34,29 +34,29 @@ void destroy_slime(slime_t* slime) {
 void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
     if(slime->slime_id == 0) {
         if(key_manager.key_d_down) {
-            slime->velocity.x = 350;
+            slime->velocity.x = 8;
         } else if(key_manager.key_q_down) {
-            slime->velocity.x = -350;
+            slime->velocity.x = -8;
         } else {
             slime->velocity.x = 0;
         }
         if(key_manager.key_z_down && slime->on_ground) {
-            slime->velocity.y = -850;
+            slime->velocity.y = -18;
         }
     } else if(slime->slime_id == 1) {
         if(key_manager.key_right_down) {
-            slime->velocity.x = 350;
+            slime->velocity.x = 8;
         } else if(key_manager.key_left_down) {
-            slime->velocity.x = -350;
+            slime->velocity.x = -8;
         } else {
             slime->velocity.x = 0;
         }
         if(key_manager.key_up_down && slime->on_ground) {
-            slime->velocity.y = -850;
+            slime->velocity.y = -18;
         }
     }
 
-    slime->velocity.y += 3000 * delta_time;
+    slime->velocity.y += 1.2 * delta_time;
 
     slime->position.x += slime->velocity.x * delta_time;
     slime->position.y += slime->velocity.y * delta_time;
@@ -120,6 +120,7 @@ void render_slime(slime_t* slime, engine_renderer_t* renderer) {
             offset_x += 1;
         }
     } */
+    printf("%p\n", (void*) slime->texture);
     SDL_RenderCopyEx(
         renderer->r_w,
         slime->texture,
@@ -130,10 +131,17 @@ void render_slime(slime_t* slime, engine_renderer_t* renderer) {
         slime->height * renderer->scale },
         0, NULL, slime->slime_id == 0 ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
     SDL_SetRenderDrawColor(renderer->r_w, 255, 255, 0, 255);
+    SDL_RenderFlush(renderer->r_w);
 /*     // draw rect for position
     SDL_Rect rect = { slime->position.x - 1, slime->position.y - 1, 2, 2 };
     // draw rect for center
     SDL_Rect rect2 = { slime->center.x - 1, slime->center.y - 1, 2, 2 };
-    SDL_RenderFillRect(renderer->, &rect);
-    SDL_RenderFillRect(renderer, &rect2); */
+    SDL_RenderFillRect(renderer->r_w, &rect);
+    SDL_RenderFillRect(renderer->r_w, &rect2); */
+}
+
+void reset_slime(slime_t* slime) {
+    slime->position = (vector2_t) { slime->game_area_collider->position.x + (slime->game_area_collider->width - SLIME_RADIUS * 2) / 2, slime->game_area_collider->height - SLIME_RADIUS - 80};
+    slime->center = (vector2_t) { slime->position.x + (SLIME_RADIUS * 2) / 2, slime->position.y + SLIME_RADIUS };
+    slime->velocity = (vector2_t) { 0, 0 };
 }

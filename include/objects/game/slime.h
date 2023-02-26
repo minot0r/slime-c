@@ -8,6 +8,8 @@
 #include "player_state.h"
 #include "rect_collide.h"
 
+#define SLIME_RADIUS 36
+
 typedef struct slime_struct {
     int slime_id;
     vector2_t position;
@@ -27,5 +29,6 @@ slime_t* create_slime(int slime_id, SDL_Texture* texture, rect_collide_t* ground
 void destroy_slime(slime_t* slime);
 void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time);
 void render_slime(slime_t* slime, engine_renderer_t* renderer);
+void reset_slime(slime_t* slime);
 
 #endif

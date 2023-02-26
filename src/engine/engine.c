@@ -75,13 +75,20 @@ void engine_init(engine_t* engine) {
 
 
     engine->is_running = true;
-    engine->delta_time = 0;
+    engine->delta_time = 0.0f;
+
+    engine->triggers = linked_list_init();
 }
 
 void engine_destroy(engine_t* engine) {
     SDL_DestroyRenderer(engine->renderer->r_w);
     free(engine->renderer);
     SDL_DestroyWindow(engine->window);
+    for(int i = 0; i < engine->triggers->size; i++) {
+        trigger_t* trigger = linked_list_get(engine->triggers, i);
+        free(trigger);
+    }
+    linked_list_destroy(engine->triggers);
     TTF_Quit();
 }
 
@@ -105,4 +112,12 @@ void engine_process_events(engine_t* engine) {
 
 void engine_set_delta_time(engine_t* engine, float delta_time) {
     engine->delta_time = delta_time;
+}
+
+void engine_set_trigger(engine_t* engine, trigger_type_t trigger_type, trigger_validator valid, trigger_callback cb) {
+    trigger_t* trigger = malloc(sizeof(trigger_t));
+    trigger->trigger_type = trigger_type;
+    trigger->valid = valid;
+    trigger->cb = cb;
+    linked_list_add(engine->triggers, trigger);
 }
