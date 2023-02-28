@@ -115,27 +115,32 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
 }
 
 void game_update(game_state_t *game_state, float delta_time, key_manager_t key_manager) {
-    update_slime(game_state->slime_1, key_manager, delta_time);
-    update_ball(game_state->ball, delta_time, game_state->slime_1, game_state->slime_2);
-    update_slime(game_state->slime_2, key_manager, delta_time);
+    int sub_steps = 3;
+    float sub_dt = delta_time / sub_steps;
 
-    if(is_colliding_y(get_rect_collide(game_state, "GROUND_LEFT"), game_state->ball->position, game_state->ball->width, game_state->ball->height)) {
-        game_state->points_2++;
-        set_freeze(game_state, 2);
-        reset_slime(game_state->slime_1);
-        reset_slime(game_state->slime_2);
-        ball_set_position(game_state->ball, (vector2_t) { game_state->slime_2->center.x - game_state->ball->width / 2, 0 });
-    } else if(is_colliding_y(get_rect_collide(game_state, "GROUND_RIGHT"), game_state->ball->position, game_state->ball->width, game_state->ball->height)) {
-        game_state->points_1++;
-        set_freeze(game_state, 2);
-        reset_slime(game_state->slime_1);
-        reset_slime(game_state->slime_2);
-        ball_set_position(game_state->ball, (vector2_t) { game_state->slime_1->center.x - game_state->ball->width / 2, 0 });
-    }
+    for(int i = 0; i < sub_steps; i++) {
+        update_slime(game_state->slime_1, key_manager, sub_dt);
+        update_ball(game_state->ball, sub_dt, game_state->slime_1, game_state->slime_2);
+        update_slime(game_state->slime_2, key_manager, sub_dt);
+    
+        if(is_colliding_y(get_rect_collide(game_state, "GROUND_LEFT"), game_state->ball->position, game_state->ball->width, game_state->ball->height)) {
+            game_state->points_2++;
+            set_freeze(game_state, 2);
+            reset_slime(game_state->slime_1);
+            reset_slime(game_state->slime_2);
+            ball_set_position(game_state->ball, (vector2_t) { game_state->slime_2->center.x - game_state->ball->width / 2, 0 });
+        } else if(is_colliding_y(get_rect_collide(game_state, "GROUND_RIGHT"), game_state->ball->position, game_state->ball->width, game_state->ball->height)) {
+            game_state->points_1++;
+            set_freeze(game_state, 2);
+            reset_slime(game_state->slime_1);
+            reset_slime(game_state->slime_2);
+            ball_set_position(game_state->ball, (vector2_t) { game_state->slime_1->center.x - game_state->ball->width / 2, 0 });
+        }
 
-    if(game_state->points_1 == POINTS_TO_WIN || game_state->points_2 == POINTS_TO_WIN) {
-        set_freeze(game_state, 2);
-        game_reset(game_state);
+        if(game_state->points_1 == POINTS_TO_WIN || game_state->points_2 == POINTS_TO_WIN) {
+            set_freeze(game_state, 2);
+            game_reset(game_state);
+        }
     }
 }
 
