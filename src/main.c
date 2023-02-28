@@ -35,6 +35,10 @@ bool resume_trigger_valid() {
     return !is_in_menu() && !engine.key_manager.key_space_down;
 }
 
+void goto_menu() {
+    game.started = false;
+}
+
 int main() {
     engine_init(&engine);
 
@@ -64,8 +68,8 @@ int main() {
     item_set_on_click(item2, leave_game);
 
     game_init(&game, engine.renderer);
-
     game.started = false;
+    game_on_done(&game, goto_menu);
 
     long time_per_frame = 1000.0f / FPS;
 
