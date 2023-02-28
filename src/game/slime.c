@@ -120,7 +120,6 @@ void render_slime(slime_t* slime, engine_renderer_t* renderer) {
             offset_x += 1;
         }
     } */
-    printf("%p\n", (void*) slime->texture);
     SDL_RenderCopyEx(
         renderer->r_w,
         slime->texture,

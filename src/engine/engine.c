@@ -60,7 +60,7 @@ void engine_init(engine_t* engine) {
     }
 
     int pixels_width, pixels_height, pixels_per_unit_x, pixels_per_unit_y;
-    SDL_GetWindowSizeInPixels(engine->window, &pixels_width, &pixels_height);
+    SDL_GetWindowSize(engine->window, &pixels_width, &pixels_height);
     pixels_per_unit_x = pixels_width / ENGINE_RESOLUTION_X;
     pixels_per_unit_y = pixels_height / ENGINE_RESOLUTION_Y;
 

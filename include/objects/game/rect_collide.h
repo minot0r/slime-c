@@ -33,7 +33,7 @@ typedef struct {
 } rect_collide_t;
 
 
-rect_collide_t *create_rect_collide(char name[32], int x, int y, int width, int height, collide_type_e collide_type, color_t color, bool transparent);
+rect_collide_t *create_rect_collide(const char* name, int x, int y, int width, int height, collide_type_e collide_type, color_t color, bool transparent);
 void render_rect_collide(rect_collide_t *rect_collide, engine_renderer_t *renderer);
 void destroy_rect_collide(rect_collide_t *rect_collide);
 collide_dir_e is_colliding_y(rect_collide_t *rect_collide_1, vector2_t pos, int width, int height);

@@ -3,7 +3,7 @@
 #include <SDL2/SDL_ttf.h>
 
 void render_text(engine_renderer_t* renderer, const char *text, int x, int y, int size, int r, int g, int b, int a) {
-    TTF_Font* font = TTF_OpenFont("/home/valentin/Perso/slime/assets/fonts/PressStart2P.ttf", size);
+    TTF_Font* font = TTF_OpenFont("./assets/fonts/PressStart2P.ttf", size);
     /* SDL_Color color = {r, g, b, a};
     SDL_Surface *surface = TTF_RenderText_Solid(font, text, color);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);

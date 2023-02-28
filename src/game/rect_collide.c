@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-rect_collide_t *create_rect_collide(char name[32], int x, int y, int width, int height, collide_type_e collide_type, color_t color, bool transparent)
+rect_collide_t *create_rect_collide(const char* name, int x, int y, int width, int height, collide_type_e collide_type, color_t color, bool transparent)
 {
     rect_collide_t *rect_collide = malloc(sizeof(rect_collide_t));
     strcpy(rect_collide->name, name);
