@@ -43,9 +43,13 @@ int main() {
     engine_init(&engine);
 
     menu = menu_create(NULL, (SDL_Color){0, 0, 0, 255});
-    item_t *item = item_create("SLIME", false, (vector2_t){0, 0}, 32);
-    item_t *item1 = item_create("Commencer une partie", true, (vector2_t){0, 64}, 24);
-    item_t *item2 = item_create("Quitter", true, (vector2_t){0, 96}, 24);
+    item_t *item = item_create("SLIME", false, (vector2_t){200, 25}, 50);
+    item_t *item1 = item_create("Commencer une partie", true, (vector2_t){25, 200}, 24);
+    item_t *item2 = item_create("Quitter", true, (vector2_t){25, 250}, 24);
+    item_t *item3 = item_create("Valentin Giorgetti", false, (vector2_t){75, 400}, 11);
+    item_t *item4 = item_create("Nemo Demarquay", false, (vector2_t){325, 400}, 11);
+    item_t *item5 = item_create("Younes Saadaoui", false, (vector2_t){75, 425}, 11);
+    item_t *item6 = item_create("Daham Karunanayake", false, (vector2_t){325, 425}, 11);
     image_t *image = create_image(load_texture(engine.renderer, "assets/slime/slime_dino.png"), (vector2_t){0, 0}, (vector2_t){64, 32});
     set_animation(image, create_animation(
         1,
@@ -63,12 +67,15 @@ int main() {
     menu_add_item(menu, item);
     menu_add_item(menu, item1);
     menu_add_item(menu, item2);
+    menu_add_item(menu, item3);
+    menu_add_item(menu, item4);
+    menu_add_item(menu, item5);
+    menu_add_item(menu, item6);
     menu_add_image(menu, image);
     item_set_on_click(item1, start_game);
     item_set_on_click(item2, leave_game);
 
     game_init(&game, engine.renderer);
-    game.started = false;
     game_on_done(&game, goto_menu);
 
     long time_per_frame = 1000.0f / FPS;
