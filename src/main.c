@@ -51,7 +51,7 @@ int main() {
     item_t *item5 = item_create("Younes Saadaoui", false, (vector2_t){75, 425}, 11);
     item_t *item6 = item_create("Daham Karunanayake", false, (vector2_t){325, 425}, 11);
     image_t *image = create_image(load_texture(engine.renderer, "assets/slime/slime_dino.png"), (vector2_t){0, 0}, (vector2_t){64, 32});
-    set_animation(image, create_animation(
+    /* set_animation(image, create_animation(
         1,
         (vector2_t){
             100,
@@ -63,7 +63,7 @@ int main() {
         },
         10000.0f,
         LINEAR
-    ));
+    )); */
     menu_add_item(menu, item);
     menu_add_item(menu, item1);
     menu_add_item(menu, item2);
