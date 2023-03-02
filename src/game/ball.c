@@ -1,6 +1,7 @@
 #include "../../include/objects/game/ball.h"
+#include "../../include/objects/game/texture.h"
 
-ball_t* create_ball(rect_collide_t* ground_collider, rect_collide_t* world_collider, rect_collide_t* net_collider) {
+ball_t* create_ball(SDL_Texture* texture, rect_collide_t* ground_collider, rect_collide_t* world_collider, rect_collide_t* net_collider) {
     ball_t* ball = malloc(sizeof(ball_t));
     // net is sized 10*35
     ball->position = (vector2_t) { 0, 100 };
@@ -13,6 +14,7 @@ ball_t* create_ball(rect_collide_t* ground_collider, rect_collide_t* world_colli
     ball->ground_collider = ground_collider;
     ball->world_collider = world_collider;
     ball->net_collider = net_collider;
+    ball->texture = texture;
     return ball;
 }
 void destroy_ball(ball_t* ball) {
@@ -75,7 +77,7 @@ void update_ball(ball_t* ball, float delta_time, slime_t* slime1, slime_t* slime
 }
 
 void render_ball(ball_t* ball, engine_renderer_t* renderer) {
-    SDL_SetRenderDrawColor(renderer->r_w, 255, 0, 0, 255);
+    /* SDL_SetRenderDrawColor(renderer->r_w, 255, 0, 0, 255);
 
     int radius = ball->width / 2;
 
@@ -131,7 +133,11 @@ void render_ball(ball_t* ball, engine_renderer_t* renderer) {
             offset_y -= 1;
             offset_x += 1;
         }
-    }
+    } */
+
+    SDL_RenderCopyEx(renderer->r_w, ball->texture, NULL, 
+        &(SDL_Rect) { ball->position.x * renderer->scale, ball->position.y * renderer->scale, ball->width * renderer->scale, ball->height * renderer->scale },
+        0, NULL, SDL_FLIP_NONE);
     
    /*  SDL_SetRenderDrawColor(renderer->r_w, 255, 255, 0, 255);
     // draw rect for position

@@ -66,12 +66,10 @@ void engine_init(engine_t* engine) {
 
     // change pixer per unit to min of x and y
     if(pixels_per_unit_x > pixels_per_unit_y) {
-        engine->renderer->scale = pixels_per_unit_y;
-    } else {
         engine->renderer->scale = pixels_per_unit_x;
+    } else {
+        engine->renderer->scale = pixels_per_unit_y;
     }
-
-    engine->renderer->scale = 1;
     
     printf("Pixels per unit x-y: %d\n", engine->renderer->scale);
 

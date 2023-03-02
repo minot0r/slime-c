@@ -22,9 +22,10 @@ typedef struct {
     rect_collide_t* ground_collider;
     rect_collide_t* world_collider;
     rect_collide_t* net_collider;
+    SDL_Texture* texture;
 } ball_t;
 
-ball_t* create_ball(rect_collide_t* ground_collider, rect_collide_t* world_collider, rect_collide_t* net_collider);
+ball_t* create_ball(SDL_Texture* texture, rect_collide_t* ground_collider, rect_collide_t* world_collider, rect_collide_t* net_collider);
 void destroy_ball(ball_t* ball);
 void update_ball(ball_t* ball, float delta_time, slime_t* slime1, slime_t* slime2);
 void render_ball(ball_t* ball, engine_renderer_t* renderer);

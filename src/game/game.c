@@ -97,10 +97,13 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
 
     SDL_Texture* texture_1 = load_texture(renderer, slime_texture_assets[pick_random_texture()]);
     SDL_Texture* texture_2 = load_texture(renderer, slime_texture_assets[pick_random_texture()]);
+    SDL_Texture* ball_texture = load_texture(renderer, "assets/ball/ball.png");
+
 
     game->slime_1 = create_slime(0, texture_1, get_rect_collide(game, "GROUND_LEFT"), get_rect_collide(game, "LEFT_SIDE"));
     game->slime_2 = create_slime(1, texture_2, get_rect_collide(game, "GROUND_RIGHT"), get_rect_collide(game, "RIGHT_SIDE"));
     game->ball = create_ball(
+        ball_texture,
         get_rect_collide(game, "GROUND"),
         get_rect_collide(game, "WORLD"),
         get_rect_collide(game, "NET")

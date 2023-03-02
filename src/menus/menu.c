@@ -64,9 +64,9 @@ void menu_render(menu_t *menu, engine_renderer_t *renderer) {
         render_text(
             renderer,
             new_text,
-            item->position.x * renderer->scale,
-            item->position.y * renderer->scale,
-            item->size * renderer->scale,
+            item->position.x,
+            item->position.y,
+            item->size,
             255,
             is_selected ? 10 : 255,
             is_selected ? 10 : 255,
