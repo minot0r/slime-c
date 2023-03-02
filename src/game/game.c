@@ -11,6 +11,10 @@ const char slime_texture_assets[3][32] = {
     "assets/slime/slime_france.png"
 };
 
+int pick_random_texture() {
+    return rand() % 3;
+}
+
 void game_init(game_state_t *game, engine_renderer_t* renderer) {
     game->rect_collides = linked_list_init();
 
@@ -91,15 +95,8 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
         true)
     );
 
-    // get random slime texture
-    int slime_texture_index = rand() % 3;
-    const char *slime_texture_1_asset = slime_texture_assets[slime_texture_index];
-    slime_texture_index = rand() % 3;
-    const char *slime_texture_2_asset = slime_texture_assets[slime_texture_index];
-
-    SDL_Texture* texture_1 = load_texture(renderer, slime_texture_1_asset);
-    SDL_Texture* texture_2 = load_texture(renderer, slime_texture_2_asset);
-
+    SDL_Texture* texture_1 = load_texture(renderer, slime_texture_assets[pick_random_texture()]);
+    SDL_Texture* texture_2 = load_texture(renderer, slime_texture_assets[pick_random_texture()]);
 
     game->slime_1 = create_slime(0, texture_1, get_rect_collide(game, "GROUND_LEFT"), get_rect_collide(game, "LEFT_SIDE"));
     game->slime_2 = create_slime(1, texture_2, get_rect_collide(game, "GROUND_RIGHT"), get_rect_collide(game, "RIGHT_SIDE"));

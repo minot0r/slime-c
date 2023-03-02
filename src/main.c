@@ -71,7 +71,7 @@ int main() {
     menu_add_item(menu, item4);
     menu_add_item(menu, item5);
     menu_add_item(menu, item6);
-    menu_add_image(menu, image);
+    /* menu_add_image(menu, image); */
     item_set_on_click(item1, start_game);
     item_set_on_click(item2, leave_game);
 
