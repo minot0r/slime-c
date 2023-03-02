@@ -1,0 +1,13 @@
+[Unit]
+Description=start slime game
+
+[Service]
+Type=simple
+User=pi
+ExecStart/home/pi/slime-c/bin/SLIME
+WorkingDirectory=/home/pi/slime-c/bin/
+Restart=on-failure
+TimeoutStopSec=60
+
+[Install]
+WantedBy=default.target
