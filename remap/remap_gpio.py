@@ -8,12 +8,12 @@ def is_down(pin_num):
     return read_gpio_pin(str(pin_num)) == "1"
 
 
-player1_left_pin = 8
-player1_right_pin = 7
+player1_left_pin = 7
+player1_right_pin = 8
 player1_up_pin = 10
-player2_left_pin = 38
+player2_left_pin = 37
 player2_right_pin = 40
-player2_up_pin = 37
+player2_up_pin = 38
 pause_pin = 15
 
 with uinput.Device([uinput.KEY_Z, uinput.KEY_Q,
