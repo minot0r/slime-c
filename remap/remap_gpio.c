@@ -10,21 +10,20 @@
 #define UINPUT_DEVICE "/dev/uinput"
 
 // Callback function for button press events
-int button_event_callback(struct gpiod_ctxless_event_handle *handle, unsigned int event_type, unsigned int offset, const struct timespec *ts, void *data)
-{
+void button_event_callback(int event, unsigned int offset, const struct timespec *ts, void *data) {
     int uinput_fd = *((int *)data);
     int key = -1;
 
     // Map GPIO pin to corresponding key code
     switch (offset)
     {
-    case 7:
+    case 82:
         key = KEY_Q;
         break;
-    case 8:
+    case 83:
         key = KEY_D;
         break;
-    case 10:
+    case 84:
         key = KEY_Z;
         break;
     case 37:
@@ -61,8 +60,8 @@ int button_event_callback(struct gpiod_ctxless_event_handle *handle, unsigned in
 int main(void)
 {
     const char *gpio_chip = "/dev/gpiochip1";
-    unsigned int button_pins[] = {7, 8}; // Add more button pins here
-    size_t num_pins = sizeof(button_pins) / sizeof(button_pins[0]);
+    unsigned int pins_offset[] = {82, 83, 84}; // Add more button pins here
+    size_t num_lines = sizeof(pins_offset) / sizeof(pins_offset[0]);
 
     // Set up uinput device
     int uinput_fd = open(UINPUT_DEVICE, O_WRONLY | O_NONBLOCK);
@@ -71,6 +70,10 @@ int main(void)
         perror("Error opening uinput device");
         return 1;
     }
+
+    struct timespec timeout;
+    timeout.tv_sec = 1; // 1 second timeout
+    timeout.tv_nsec = 0;
 
     struct uinput_setup usetup;
     memset(&usetup, 0, sizeof(usetup));
@@ -90,10 +93,10 @@ int main(void)
 
     // Set up the event loop to monitor the button pins
     int ret = gpiod_ctxless_event_loop_multiple(
-        gpio_chip, button_pins, num_pins,
+        gpio_chip, pins_offset, num_lines,
         false,
         "remap_gpio",
-        1000000000, 
+        &timeout, 
         NULL,
         button_event_callback,
         &uinput_fd
