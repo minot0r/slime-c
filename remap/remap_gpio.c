@@ -8,6 +8,7 @@
 #include <string.h>
 
 #define UINPUT_DEVICE "/dev/uinput"
+#define GPIO_CHIP "/dev/gpiochip1"
 
 // Callback function for button press events
 int button_event_callback(int event, unsigned int offset, const struct timespec *ts, void *data) {
@@ -59,7 +60,6 @@ int button_event_callback(int event, unsigned int offset, const struct timespec 
 
 int main(void)
 {
-    const char *gpio_chip = "/dev/gpiochip1";
     unsigned int pins_offset[] = {82, 83, 84}; // Add more button pins here
     size_t num_lines = sizeof(pins_offset) / sizeof(pins_offset[0]);
 
@@ -92,14 +92,15 @@ int main(void)
     ioctl(uinput_fd, UI_DEV_CREATE);
 
     // Set up the event loop to monitor the button pins
-    int ret = gpiod_ctxless_event_loop_multiple(
-        gpio_chip, pins_offset, num_lines,
+    int ret = gpiod_ctxless_event_monitor_multiple_ext(
+        GPIO_CHIP, pins_offset, num_lines,
         false,
         "remap_gpio",
         &timeout, 
         NULL,
         button_event_callback,
-        &uinput_fd
+        &uinput_fd,
+        0
     );
 
     if (ret < 0)
