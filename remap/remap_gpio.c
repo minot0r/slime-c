@@ -60,7 +60,7 @@ int button_event_callback(struct gpiod_ctxless_event_handle *handle, unsigned in
 
 int main(void)
 {
-    const char *gpio_chip = "gpiochip0";
+    const char *gpio_chip = "/dev/gpiochip1";
     unsigned int button_pins[] = {7, 8}; // Add more button pins here
     size_t num_pins = sizeof(button_pins) / sizeof(button_pins[0]);
 
