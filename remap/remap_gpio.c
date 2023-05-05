@@ -44,7 +44,7 @@ void button_event_callback(int event, unsigned int offset, const struct timespec
         memset(&ev, 0, sizeof(ev));
         ev.type = EV_KEY;
         ev.code = key;
-        ev.value = (event_type == GPIOD_CTXLESS_EVENT_FALLING_EDGE) ? 1 : 0; // Press or release
+        ev.value = (event == GPIOD_CTXLESS_EVENT_FALLING_EDGE) ? 1 : 0; // Press or release
 
         write(uinput_fd, &ev, sizeof(ev));
         memset(&ev, 0, sizeof(ev));
