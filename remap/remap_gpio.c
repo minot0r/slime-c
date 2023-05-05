@@ -10,7 +10,7 @@
 #define UINPUT_DEVICE "/dev/uinput"
 
 // Callback function for button press events
-void button_event_callback(int event, unsigned int offset, const struct timespec *ts, void *data) {
+int button_event_callback(int event, unsigned int offset, const struct timespec *ts, void *data) {
     int uinput_fd = *((int *)data);
     int key = -1;
 
