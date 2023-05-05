@@ -10,6 +10,10 @@
 #define UINPUT_DEVICE "/dev/uinput"
 #define GPIO_CHIP "/dev/gpiochip1"
 
+struct timespec timeout;
+unsigned int pins_offset[] = {82, 83, 84}; // Add more button pins here
+size_t num_lines = sizeof(pins_offset) / sizeof(pins_offset[0]);
+
 // Callback function for button press events
 static int button_event_callback(int event_type, unsigned int line_offset,
 			  const struct timespec *timestamp, void *data) {
@@ -59,11 +63,38 @@ static int button_event_callback(int event_type, unsigned int line_offset,
     return GPIOD_CTXLESS_EVENT_CB_RET_OK;
 }
 
+void *rising_edge_loop(void *data)
+{
+    int *uinput_fd = (int *)data;
+    return (void *)(intptr_t)gpiod_ctxless_event_monitor_multiple_ext(
+        GPIO_CHIP, GPIOD_CTXLESS_EVENT_RISING_EDGE,
+        pins_offset, num_lines,
+        false,
+        "rising_edge_loop",
+        &timeout,
+        NULL,
+        button_event_callback,
+        uinput_fd,
+        0);
+}
+
+void *falling_edge_loop(void *data)
+{
+    int *uinput_fd = (int *)data;
+    return (void *)(intptr_t)gpiod_ctxless_event_monitor_multiple_ext(
+        GPIO_CHIP, GPIOD_CTXLESS_EVENT_FALLING_EDGE,
+        pins_offset, num_lines,
+        false,
+        "falling_edge_loop",
+        &timeout,
+        NULL,
+        button_event_callback,
+        uinput_fd,
+        0);
+}
+
 int main(void)
 {
-    unsigned int pins_offset[] = {82, 83, 84}; // Add more button pins here
-    size_t num_lines = sizeof(pins_offset) / sizeof(pins_offset[0]);
-
     // Set up uinput device
     int uinput_fd = open(UINPUT_DEVICE, O_WRONLY | O_NONBLOCK);
     if (uinput_fd < 0)
@@ -72,7 +103,6 @@ int main(void)
         return 1;
     }
 
-    struct timespec timeout;
     timeout.tv_sec = 1; // 1 second timeout
     timeout.tv_nsec = 0;
 
@@ -92,22 +122,24 @@ int main(void)
     ioctl(uinput_fd, UI_DEV_SETUP, &usetup);
     ioctl(uinput_fd, UI_DEV_CREATE);
 
-    // Set up the event loop to monitor the button pins
-    int ret = gpiod_ctxless_event_monitor_multiple_ext(
-        GPIO_CHIP, GPIOD_CTXLESS_EVENT_BOTH_EDGES,
-        pins_offset, num_lines,
-        false,
-        "remap_gpio",
-        &timeout, 
-        NULL,
-        button_event_callback,
-        &uinput_fd,
-        0
-    );
+    pthread_t rising_edge_thread;
+    pthread_t falling_edge_thread;
 
-    if (ret < 0)
+    pthread_create(&rising_edge_thread, NULL, rising_edge_loop, &uinput_fd);
+    pthread_create(&falling_edge_thread, NULL, falling_edge_loop, &uinput_fd);
+
+    // Wait for the threads to finish
+    void *rising_edge_ret;
+    void *falling_edge_ret;
+    pthread_join(rising_edge_thread, &rising_edge_ret);
+    pthread_join(falling_edge_thread, &falling_edge_ret);
+
+    int ret1 = (int)(intptr_t)rising_edge_ret;
+    int ret2 = (int)(intptr_t)falling_edge_ret;
+
+    if (ret1 < 0 || ret2 < 0)
     {
-        perror("Error in gpiod_ctxless_event_loop_multiple()");
+        perror("Error in gpiod_ctxless_event_monitor_multiple_ext()");
         close(uinput_fd);
         return 1;
     }
