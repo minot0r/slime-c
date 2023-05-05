@@ -91,12 +91,12 @@ int main(void)
     // Set up the event loop to monitor the button pins
     int ret = gpiod_ctxless_event_loop_multiple(
         gpio_chip, button_pins, num_pins,
-        GPIOD_CTXLESS_EVENT_BOTH_EDGES,
-        1,          // Active state (1 = active high)
-        1000000000, // 1 second timeout
-        NULL,       // Custom flags (NULL = default behavior)
+        false,
+        "remap_gpio",
+        1000000000, 
+        NULL,
         button_event_callback,
-        &uinput_fd // Callback data
+        &uinput_fd
     );
 
     if (ret < 0)
