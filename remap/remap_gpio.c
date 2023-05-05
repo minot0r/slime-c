@@ -11,7 +11,8 @@
 #define GPIO_CHIP "/dev/gpiochip1"
 
 // Callback function for button press events
-int button_event_callback(int event, unsigned int offset, const struct timespec *ts, void *data) {
+static int button_event_callback(int event_type, unsigned int line_offset,
+			  const struct timespec *timestamp, void *data) {
     int uinput_fd = *((int *)data);
     int key = -1;
 
@@ -45,7 +46,7 @@ int button_event_callback(int event, unsigned int offset, const struct timespec 
         memset(&ev, 0, sizeof(ev));
         ev.type = EV_KEY;
         ev.code = key;
-        ev.value = (event == GPIOD_CTXLESS_EVENT_FALLING_EDGE) ? 1 : 0; // Press or release
+        ev.value = (event_type == GPIOD_CTXLESS_EVENT_CB_FALLING_EDGE) ? 1 : 0; // Press or release
 
         write(uinput_fd, &ev, sizeof(ev));
         memset(&ev, 0, sizeof(ev));
@@ -55,7 +56,7 @@ int button_event_callback(int event, unsigned int offset, const struct timespec 
         write(uinput_fd, &ev, sizeof(ev));
     }
 
-    return 0;
+    return GPIOD_CTXLESS_EVENT_CB_RET_OK;
 }
 
 int main(void)
@@ -93,7 +94,8 @@ int main(void)
 
     // Set up the event loop to monitor the button pins
     int ret = gpiod_ctxless_event_monitor_multiple_ext(
-        GPIO_CHIP, pins_offset, num_lines,
+        GPIO_CHIP, GPIOD_CTXLESS_EVENT_BOTH_EDGES,
+        pins_offset, num_lines,
         false,
         "remap_gpio",
         &timeout, 
