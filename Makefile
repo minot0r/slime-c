@@ -51,7 +51,7 @@ main:
 
 
 remap:
-	$(CC) -o bin/REMAP remap/remap_gpio.c -lgpiod -ludev
+	$(CC) -o bin/REMAP remap/remap_gpio.c -lgpiod -ludev -lpthread
 
 clean:
 	rm -Rf bin

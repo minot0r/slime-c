@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <pthread.h>
 
 #define UINPUT_DEVICE "/dev/uinput"
 #define GPIO_CHIP "/dev/gpiochip1"
