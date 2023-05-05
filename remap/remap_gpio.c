@@ -17,7 +17,7 @@ static int button_event_callback(int event_type, unsigned int line_offset,
     int key = -1;
 
     // Map GPIO pin to corresponding key code
-    switch (offset)
+    switch (line_offset)
     {
     case 82:
         key = KEY_Q;
