@@ -17,6 +17,7 @@ typedef struct {
 
 item_t* item_create_clickable(char* text, bool is_selectable, vector2_t position, int size, on_click_callback_t on_click_cb);
 item_t* item_create(char* text, bool is_selectable, vector2_t position, int size);
+void item_set_text(item_t* item, char* text);
 void item_set_on_click(item_t* item, on_click_callback_t on_click_cb);
 void item_destroy(item_t* item);
 void item_click(item_t* item);

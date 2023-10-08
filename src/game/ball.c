@@ -15,9 +15,12 @@ ball_t* create_ball(SDL_Texture* texture, rect_collide_t* ground_collider, rect_
     ball->world_collider = world_collider;
     ball->net_collider = net_collider;
     ball->texture = texture;
+    ball->bounce_sound = Mix_LoadWAV("assets/sound/col.wav");
     return ball;
 }
 void destroy_ball(ball_t* ball) {
+    SDL_DestroyTexture(ball->texture);
+    Mix_FreeChunk(ball->bounce_sound);
     free(ball);
 }
 
@@ -65,6 +68,7 @@ void update_ball(ball_t* ball, float delta_time, slime_t* slime1, slime_t* slime
         ball->velocity.y = -11;
         ball->position.y = ball->ground_collider->position.y - ball->height;
         ball->center.y = ball->position.y + ball->height / 2;
+        Mix_PlayChannel(-1, ball->bounce_sound, 0);
     } else if((collide_dir = is_colliding_y(ball->net_collider, (vector2_t) { ball->position.x + ball->width / 4, ball->position.y + ball->height / 4 },
      ball->width / 2, ball->height / 2)) != NONE) {
         if(collide_dir == TOP) {

@@ -23,11 +23,18 @@ slime_t* create_slime(
     slime->texture = texture;
 
     create_player_state(&slime->player_state, slime_id == 0);
+    if(slime_id == 0) {
+        slime->jump_sound = Mix_LoadWAV("assets/sound/sautp1.wav");
+    } else {
+        slime->jump_sound = Mix_LoadWAV("assets/sound/sautp2.wav");
+    }
 
     return slime;
 }
 
 void destroy_slime(slime_t* slime) {
+    SDL_DestroyTexture(slime->texture);
+    Mix_FreeChunk(slime->jump_sound);
     free(slime);
 }
 
@@ -42,6 +49,7 @@ void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
         }
         if(key_manager.key_z_down && slime->on_ground) {
             slime->velocity.y = -18;
+            Mix_PlayChannel(-1, slime->jump_sound, 0);
         }
     } else if(slime->slime_id == 1) {
         if(key_manager.key_right_down) {
@@ -53,6 +61,7 @@ void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time) {
         }
         if(key_manager.key_up_down && slime->on_ground) {
             slime->velocity.y = -18;
+            Mix_PlayChannel(-1, slime->jump_sound, 0);
         }
     }
 
@@ -137,6 +146,10 @@ void render_slime(slime_t* slime, engine_renderer_t* renderer) {
     SDL_Rect rect2 = { slime->center.x - 1, slime->center.y - 1, 2, 2 };
     SDL_RenderFillRect(renderer->r_w, &rect);
     SDL_RenderFillRect(renderer->r_w, &rect2); */
+}
+
+void change_slime_texture(slime_t* slime, SDL_Texture* texture) {
+    slime->texture = texture;
 }
 
 void reset_slime(slime_t* slime) {

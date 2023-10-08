@@ -34,6 +34,10 @@ item_t* item_create_clickable(
     return item;
 }
 
+void item_set_text(item_t* item, char* text) {
+    strcpy(item->text, text);
+}
+
 void item_set_on_click(item_t* item, on_click_callback_t on_click_cb) {
     item->on_click_cb = on_click_cb;
 }

@@ -1,5 +1,6 @@
 #include "../../include/objects/engine/engine.h"
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <stdlib.h>
 #include <time.h>
@@ -28,8 +29,18 @@ void engine_init(engine_t* engine) {
         return;
     }
 
+    if(SDL_Init(SDL_INIT_AUDIO) < 0) {
+        printf("SDL could not initialize audio! SDL_Error: %s\n", SDL_GetError());
+        return;
+    }
+
     if(TTF_Init() < 0) {
         printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+        return;
+    }
+
+    if (Mix_OpenAudio(96000, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) < 0) {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
         return;
     }
 
@@ -38,7 +49,7 @@ void engine_init(engine_t* engine) {
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         ENGINE_RESOLUTION_X, ENGINE_RESOLUTION_Y,
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN 
-        | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN_DESKTOP
+        /* | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN_DESKTOP */
     );
     
     if(engine->window == NULL) {
@@ -90,6 +101,7 @@ void engine_destroy(engine_t* engine) {
     }
     linked_list_destroy(engine->triggers);
     TTF_Quit();
+    Mix_CloseAudio();
 }
 
 void engine_process_events(engine_t* engine) {

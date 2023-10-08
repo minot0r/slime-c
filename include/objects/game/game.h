@@ -29,7 +29,6 @@ typedef struct {
 } game_state_t;
 
 void game_init(game_state_t *game_state, engine_renderer_t* renderer);
-
 void game_update(game_state_t *game_state, float delta_time, key_manager_t key_manager);
 void game_render(game_state_t *game_state, engine_renderer_t* renderer);
 void game_destroy(game_state_t *game_state);

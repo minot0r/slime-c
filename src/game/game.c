@@ -11,8 +11,14 @@ const char slime_texture_assets[3][32] = {
     "assets/slime/slime_france.png"
 };
 
+SDL_Texture* slime_textures[3];
+
 int pick_random_texture() {
     return rand() % 3;
+}
+
+int pick_random_service() {
+    return rand() % 2;
 }
 
 void game_init(game_state_t *game, engine_renderer_t* renderer) {
@@ -95,8 +101,12 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
         true)
     );
 
-    SDL_Texture* texture_1 = load_texture(renderer, slime_texture_assets[pick_random_texture()]);
-    SDL_Texture* texture_2 = load_texture(renderer, slime_texture_assets[pick_random_texture()]);
+    for(size_t i = 0; i < 3; i++) {
+        slime_textures[i] = load_texture(renderer, slime_texture_assets[i]);
+    }
+
+    SDL_Texture* texture_1 = slime_textures[pick_random_texture()];
+    SDL_Texture* texture_2 = slime_textures[pick_random_texture()];
     SDL_Texture* ball_texture = load_texture(renderer, "assets/ball/ball.png");
 
 
@@ -109,7 +119,9 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
         get_rect_collide(game, "NET")
     );
 
-    ball_set_position(game->ball, (vector2_t) { game->slime_1->center.x - game->ball->width / 2, 0 });
+
+    float server_x = pick_random_service() == 0 ? game->slime_1->center.x : game->slime_2->center.x;
+    ball_set_position(game->ball, (vector2_t) { server_x - game->ball->width / 2, 0 });
     
     game->started = false;
 }
@@ -117,6 +129,13 @@ void game_init(game_state_t *game, engine_renderer_t* renderer) {
 void game_update(game_state_t *game_state, float delta_time, key_manager_t key_manager) {
     int sub_steps = 3;
     float sub_dt = delta_time / sub_steps;
+
+    bool reset_validation = false;
+
+    // if all keys pressed back to menu
+    if(key_manager.key_q_down && key_manager.key_d_down && key_manager.key_z_down && key_manager.key_up_down) {
+        reset_validation = true;
+    }
 
     for(int i = 0; i < sub_steps; i++) {
         update_slime(game_state->slime_1, key_manager, sub_dt);
@@ -142,6 +161,12 @@ void game_update(game_state_t *game_state, float delta_time, key_manager_t key_m
             game_reset(game_state);
         }
     }
+
+    // if all keys pressed and valid
+    if(reset_validation && key_manager.key_q_down && key_manager.key_d_down && key_manager.key_z_down && key_manager.key_up_down) {
+        set_freeze(game_state, 2);
+        game_reset(game_state);
+    }
 }
 
 void game_render(game_state_t* game_state, engine_renderer_t* renderer) {
@@ -156,7 +181,7 @@ void game_render(game_state_t* game_state, engine_renderer_t* renderer) {
     }
     char* score = (char*) malloc(6 * sizeof(char));
     sprintf(score, "%d - %d", game_state->points_1, game_state->points_2);
-    render_text(renderer, score, ENGINE_RESOLUTION_X / 2 - 10, 10, 10, 255, 255, 255, 255);
+    render_text(renderer, score, ENGINE_RESOLUTION_X / 2 - 20, 10, 10, 255, 255, 255, 255);
     SDL_RenderPresent(renderer->r_w);
 }
 
@@ -169,6 +194,9 @@ void game_destroy(game_state_t *game_state) {
         destroy_rect_collide(rect_collide);
     }
     linked_list_destroy(game_state->rect_collides);
+    for(size_t i = 0; i < 3; i++) {
+        SDL_DestroyTexture(slime_textures[i]);
+    }
 }
 
 void register_rect_collide(game_state_t* game_state, rect_collide_t* rect_collide) {
@@ -195,6 +223,9 @@ void game_reset(game_state_t *game_state) {
     reset_slime(game_state->slime_1);
     reset_slime(game_state->slime_2);
     ball_set_position(game_state->ball, (vector2_t) { game_state->slime_1->center.x - game_state->ball->width / 2, 0 });
+
+    change_slime_texture(game_state->slime_1, slime_textures[pick_random_texture()]);
+    change_slime_texture(game_state->slime_2, slime_textures[pick_random_texture()]);
 
     if(game_state->on_done != NULL) {
         game_state->on_done();

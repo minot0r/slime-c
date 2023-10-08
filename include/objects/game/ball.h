@@ -8,6 +8,7 @@
 #include "rect_collide.h"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #define BALL_RADIUS 12
 
@@ -23,6 +24,7 @@ typedef struct {
     rect_collide_t* world_collider;
     rect_collide_t* net_collider;
     SDL_Texture* texture;
+    Mix_Chunk* bounce_sound;
 } ball_t;
 
 ball_t* create_ball(SDL_Texture* texture, rect_collide_t* ground_collider, rect_collide_t* world_collider, rect_collide_t* net_collider);

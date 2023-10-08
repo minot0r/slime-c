@@ -47,7 +47,7 @@ main:
 	$(CC) $(CFLAGS) -c src/game/ball.c -o obj/game/ball.o
 	$(CC) $(CFLAGS) -c src/game/rect_collide.c -o obj/game/rect_collide.o
 	$(CC) $(CFLAGS) -c src/game/game.c -o obj/game/game.o
-	$(CC) $(CFLAGS) -o bin/$(NAME) $(SRC) obj/math/collider.o obj/other/linkedlist.o obj/engine/key_manager.o obj/engine/engine.o obj/menus/text_renderer.o obj/menus/animation.o obj/menus/item.o obj/menus/image.o obj/menus/menu.o obj/game/texture.o obj/game/player_state.o obj/game/slime.o obj/game/ball.o obj/game/rect_collide.o obj/game/game.o `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_ttf -lm
+	$(CC) $(CFLAGS) -o bin/$(NAME) $(SRC) obj/math/collider.o obj/other/linkedlist.o obj/engine/key_manager.o obj/engine/engine.o obj/menus/text_renderer.o obj/menus/animation.o obj/menus/item.o obj/menus/image.o obj/menus/menu.o obj/game/texture.o obj/game/player_state.o obj/game/slime.o obj/game/ball.o obj/game/rect_collide.o obj/game/game.o `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lm
 
 
 remap:

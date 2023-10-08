@@ -7,6 +7,7 @@
 #include "../engine/key_manager.h"
 #include "player_state.h"
 #include "rect_collide.h"
+#include <SDL2/SDL_mixer.h>
 
 #define SLIME_RADIUS 36
 
@@ -23,12 +24,14 @@ typedef struct slime_struct {
     rect_collide_t* ground_collider;
     rect_collide_t* game_area_collider;
     SDL_Texture* texture;
+    Mix_Chunk* jump_sound;
 } slime_t;
 
 slime_t* create_slime(int slime_id, SDL_Texture* texture, rect_collide_t* ground_collider, rect_collide_t* game_area_collider);
 void destroy_slime(slime_t* slime);
 void update_slime(slime_t* slime, key_manager_t key_manager, float delta_time);
 void render_slime(slime_t* slime, engine_renderer_t* renderer);
+void change_slime_texture(slime_t* slime, SDL_Texture* texture);
 void reset_slime(slime_t* slime);
 
 #endif
